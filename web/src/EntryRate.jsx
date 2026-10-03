@@ -1,0 +1,11 @@
+import React,{useEffect,useRef,useState} from 'react';
+import {api} from './api';
+import CurrencyPicker from './CurrencyPicker';
+export default function EntryRate({currency,date,initial,onChange}) {
+ const [target,setTarget]=useState(Object.keys(initial||{})[0]||'CNY');
+ const [value,setValue]=useState(initial?.[target]?.rate||'');const [source,setSource]=useState(initial?.[target]?.source||'');const [message,setMessage]=useState('');
+ const generation=useRef(0),manual=useRef(false);
+ async function query(){const seq=++generation.current;manual.current=false;setMessage('查询参考汇率…');try{const r=await api.getRate(currency,target,date);if(seq!==generation.current||manual.current)return;setValue(r.rate);setSource('api');setMessage(`参考汇率 · ${r.rateDate} · Frankfurter`);onChange({[target]:{from:currency,rate:String(r.rate),source:'api',rateDate:r.rateDate,fetchedAt:r.fetchedAt}});}catch(e){if(seq===generation.current)setMessage('暂无自动汇率，可手动填写；也可先按原币保存。');}}
+ useEffect(()=>{generation.current++;manual.current=false;setValue('');setSource('');onChange({});if(currency===target){setMessage('同币种，无需换算');return;}const snapshot=initial?.[target];if(snapshot?.from===currency){setValue(snapshot.rate);setSource(snapshot.source);onChange({[target]:snapshot});setMessage('使用已保存的汇率');return;}if(currency&&date)query();return()=>{generation.current++;};},[currency,target,date]);
+ return <details className="entry-rate"><summary>汇率与折算 <span className="hint">{currency===target?'原币记账':value?`1 ${currency} = ${value} ${target}`:'可选，原始金额始终保留'}</span></summary><div className="rate-editor"><CurrencyPicker value={target} onChange={setTarget} compact/>{currency!==target&&<><label className="fld"><span>1 {currency} 兑换 {target}</span><input type="number" min="0" step="any" value={value} placeholder="输入汇率" onChange={e=>{manual.current=true;generation.current++;setValue(e.target.value);setSource('manual');setMessage('使用自定义汇率');onChange(Number(e.target.value)>0?{[target]:{from:currency,rate:e.target.value,source:'manual',rateDate:date}}:{});}}/></label><button type="button" className="ghost" onClick={query}>{source==='manual'?'恢复参考汇率':'重新获取'}</button></>}</div><p className="hint">{message}</p></details>;
+}

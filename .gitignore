@@ -1,0 +1,12 @@
+ai.properties
+db.properties
+.env
+.env.*
+.env
+.env.*
+!.env.example
+.local-data/
+.local-test/
+node_modules/
+tests/*.png
+tests/*.jpg
