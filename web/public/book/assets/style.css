@@ -130,6 +130,7 @@ body {
 .flipbtn:disabled { cursor: default; opacity: 0.42; }
 .flipbtn.on { opacity: 1; visibility: visible; pointer-events: auto; }
 .flipbtn:disabled.on { pointer-events: none; }
+.embedded .flipbtn { display: none !important; }
 #btnPrev { left: max(12px, env(safe-area-inset-left)); }
 #btnNext { right: max(12px, env(safe-area-inset-right)); }
 
@@ -326,11 +327,22 @@ body.no-gl #gl { display: none; }
   opacity: 0; pointer-events: none;
   z-index: 3;
   transition: opacity 0.34s ease, transform 0.64s cubic-bezier(.22,.72,.2,1);
-  filter: drop-shadow(0 20px 30px rgba(52, 76, 84, 0.20));
+  /* A filter on a scaled element leaves tiled grey/black compositor remnants
+     in fullscreen Safari. A regular shadow renders the same depth without
+     creating a separate filtered GPU surface. */
+  filter: none;
+  box-shadow: 0 20px 30px rgba(52, 76, 84, 0.20);
+  isolation: isolate;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .fbs .pg {
   background: #FFFDF6 url('asset-05.png');
   background-size: 200% 100%;
+  overflow: hidden;
+  contain: paint;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .fbs .pg.l { background-position: left center; border-radius: 10px 2px 2px 10px; }
 .fbs .pg.r { background-position: right center; border-radius: 2px 10px 10px 2px; }

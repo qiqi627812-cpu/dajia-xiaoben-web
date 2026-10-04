@@ -116,6 +116,7 @@ let fbCard = null, fbSpread = null, fbLeaf = null;
 
 const post = (msg) => { try { parent.postMessage(msg, '*'); } catch (_e) { /* 独立模式无父窗口 */ } };
 const embedded = (() => { try { return window.parent !== window; } catch (_e) { return false; } })();
+if (embedded) document.body.classList.add('embedded');
 
 /* ---------------- 提示 ---------------- */
 let toastT = null;
