@@ -145,7 +145,13 @@ body {
   position: absolute; inset: 0; z-index: 12;
   pointer-events: none;                /* 让 iframe 顶部导航可点击 */
 }
-.focus-layer.is-hidden { visibility: hidden; }
+.focus-layer.is-hidden {
+  /* Safari fullscreen can keep painting a stale backdrop-filter layer when it
+     is hidden with visibility alone.  display:none tears down that compositor
+     surface while keeping every React page mounted, so form drafts remain. */
+  display: none;
+  visibility: hidden;
+}
 
 .focus-panel {
   position: absolute;
